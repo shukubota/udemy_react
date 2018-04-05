@@ -1,0 +1,16 @@
+$background-color: #eee;
+$text-color: #444;
+
+body {
+  //text-align: center;
+  color: $text-color;
+  background-color: $background-color;
+}
+
+@import 'reset';
+@import 'Map';
+@import 'App';
+@import 'SearchForm';
+@import 'Geocode';
+@import 'HotelsTable';
+@import 'HotelsClickableTh';
