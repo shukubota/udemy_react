@@ -18,7 +18,6 @@ export const searchHotelByLocation = (location) => {
           {latitude: location.lat, longitude: location.lng},
           {latitude: basicInfo.latitude, longitude: basicInfo.longitude},
         )
-        console.log(distance)
         return {
           id: basicInfo.hotelNo,
           name: basicInfo.hotelName,

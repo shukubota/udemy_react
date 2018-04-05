@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
-import SearchForm from './SearchForm'
+import SearchForm from '../containers/SearchForm'
 import GeocodeResult from './GeocodeResult'
 import Map from './Map'
-import { geocode } from '../domain/Geocoder'
+import { connect } from 'react-redux'
 import { searchHotelByLocation } from '../domain/HotelRepository'
-import HotelsTable from './HotelsTable'
+import HotelsTable from '../components/HotelsTable'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
-
 const sortedHotels =(hotels, sortKey) => _.sortBy(hotels, h => h[sortKey])
 
 class SearchPage extends Component {
@@ -25,12 +24,13 @@ class SearchPage extends Component {
     }
   }
   componentDidMount() {
-    const params = queryString.parse(this.props.location.search)
-    const place = this.getPlaceParam()
-    if (place ) {
-      this.startSearch(place)
-    }
+    // const params = queryString.parse(this.props.location.search)
+    // const place = this.getPlaceParam()
+    //if (place ) {
+     //  this.startSearch(place)
+  //  }
   }
+
   getPlaceParam() {
     const params = queryString.parse(this.props.location.search)
     const place = params.place
@@ -49,37 +49,11 @@ class SearchPage extends Component {
       },
     })
   }
-  handlePlaceSubmit(e){
-    e.preventDefault()
-    this.props.history.push(`/?place=${this.state.place}`)
-    this.startSearch()
-  }
-
-
-  startSearch() {
-    geocode(this.state.place)
-      .then(({ status, address, location }) => {
-        switch (status) {
-          case 'OK':{
-            this.setState({address,location})
-            return searchHotelByLocation(location)
-          }
-          case 'ZERO_RESULTS' : {
-            this.setErrorMessage('結果がありません')
-          }
-          default: {
-            this.setErrorMessage('失敗しました')
-          }
-        }
-        return []
-      })
-      .then((hotels) => {
-        this.setState({hotels: sortedHotels(hotels, this.state.sortKey)})
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-    }
+  // handlePlaceSubmit(e){
+  //   e.preventDefault()
+  //   this.props.history.push(`/?place=${this.state.place}`)
+  //   this.startSearch()
+  // }
 
 
   handleSortKeyChange(sortKey) {
@@ -88,34 +62,29 @@ class SearchPage extends Component {
       hotels: sortedHotels(this.state.hotels, sortKey)
     })
   }
-  handlePlaceChange(place) {
-    this.setState({place})
-  }
 
 
   render(){
-    console.log(this.state.place)
+    console.log(this.props)
     return (
       <div className='search-page'>
         <h1 className="app-title">ホテル検索</h1>
-        <SearchForm
-          place={this.state.place}
-          onPlaceChange={place => this.handlePlaceChange(place)}
-          onSubmit={(e) => this.handlePlaceSubmit(e)}
-        />
+        <SearchForm/>
         <div className="result-area">
-          <Map location={this.state.location} />
+          <Map location={this.props.geocodeResult.location} />
           <div className="result-right">
             <GeocodeResult
-              address={this.state.address}
-              location={this.state.location}
+              address={this.props.geocodeResult.address}
+              location={this.props.geocodeResult.location}
             />
-          <h2>ホテル検索結果</h2>
+          {/*
+        　　<h2>ホテル検索結果</h2>
             <HotelsTable
               hotels={this.state.hotels}
               sortKey={this.state.sortKey}
               onSort={(sortKey) => this.handleSortKeyChange(sortKey)}
             />
+            */}
           </div>
         </div>
       </div>)
@@ -123,7 +92,18 @@ class SearchPage extends Component {
 }
 
 SearchPage.propTypes = {
-  history: PropTypes.shape({ push: PropTypes.func}).isRequired,
+//history: PropTypes.shape({ push: PropTypes.func}).isRequired,
   location: PropTypes.shape({search: PropTypes.string}).isRequired,
+  geocodeResult: PropTypes.shape({
+    address: PropTypes.string.isRequired,
+    location: PropTypes.shape({
+      lat: PropTypes.number.isRequired,
+      lng: PropTypes.number.isRequired,
+    })
+  }).isRequired
 }
-export default SearchPage
+const mapStateToProps = state => ({
+  geocodeResult: state.geocodeResult,
+})
+
+export default connect(mapStateToProps)(SearchPage)
