@@ -1,21 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-// import App from './components/app'
+import thunk from 'redux-thunk';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import App from './components/app';
 import SearchPage from './components/SearchPage';
 import reducer from './reducers/';
 
+const store = createStore(
+  reducer,
+  composeWithDevTools(applyMiddleware(thunk)),
+);
+
 
 ReactDOM.render(
-  <Provider store={createStore(
-      reducer,
-      window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-    )}>
-    <SearchPage
-      history={ history }
-      location={ location }
-    />
+  <Provider store={store}>
+    <App />
   </Provider>,
-  document.querySelector('.container')
-)
+  document.querySelector('.container'),
+);
