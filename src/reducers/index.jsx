@@ -8,7 +8,7 @@ const getPlaceParam = () => {
     return place;
   }
   return null;
-}
+};
 
 const place = (state = getPlaceParam() || '東京タワー', action) => {
   switch (action.type) {
